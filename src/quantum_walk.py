@@ -2,10 +2,18 @@ from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator 
 import matplotlib.pyplot as plt
 
+from qiskit.quantum_info import Operator
+from qiskit.circuit.library import XGate, YGate
+
+import numpy as np
+from math import pi 
 
 #setting up the number of qubits in the circuit
 
 number_of_qubits = 8
+
+
+J = 2*pi * 1.0e6
 
 simulator = AerSimulator()  
 
@@ -17,10 +25,60 @@ circuit = QuantumCircuit(number_of_qubits, number_of_qubits)
 circuit.initialize('00000001', [0,1,2,3,4,5,6,7])
 
 
-circuit.h(0)
+# we need to construct our coupling dynamic operator xixj + yiyj
+# it is exist to permit the energy exchange between qubits
 
+
+
+# constructing operations that depend on indexes
+i = 0
+j = 1
+
+# defining gates X and Y
+porta_x = XGate()
+porta_y = YGate()
+
+# we need to tell Operator the size of the matrix input and output. Each state is describe by a 2x1 matrix so we have the size of (2,2,2,2,2,2,2,2) 8*2
+dimensoes_do_sistema = (2,) * number_of_qubits
+
+identidade_global = Operator(np.eye(2**number_of_qubits), input_dims=dimensoes_do_sistema, output_dims=dimensoes_do_sistema)
+
+xi = identidade_global.compose(porta_x, qargs=[i])
+# operating with X or Y on the qubit of index i or j
+
+#xi = circuit.x(i)
+#xi = Operator(porta_x, input_dims=dimensoes_do_sistema, output_dims=dimensoes_do_sistema, qargs=[i])
+# xj = circuit.x(j)
+#xj = Operator(porta_x, input_dims=dimensoes_do_sistema, output_dims=dimensoes_do_sistema, qargs=[j])
+xj = identidade_global.compose(porta_x, qargs=[j])
+yi = identidade_global.compose(porta_y, qargs=[i])
+yj = identidade_global.compose(porta_y, qargs=[j])
+
+# yi = circuit.y(i)
+#yi = Operator(porta_j, input_dims=dimensoes_do_sistema, output_dims=dimensoes_do_sistema, qargs=[i])
+# yj = circuit.y(j)
+#yj = Operator(porta_j, input_dims=dimensoes_do_sistema, output_dims=dimensoes_do_sistema, qargs=[j])
+
+
+## i need to select where each XGate and YGate acts
+
+## we can covert x gates to Operator, this will permit us to realize multiplication and sum to get our coupling operator
+
+# op_xi = Operator(circuit)
+# op_xj = Operator(circuit)
+
+#op_yi = Operator(yi)
+#op_yj = Operator(yj)
+
+H = xi @ xj + yi @ yj
+
+print(H)
+
+circuit.append(H, [0,1,2,3,4,5,6,7])
 
 circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
+
+#circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
 
 
 job = simulator.run(circuit, shots=1024)
