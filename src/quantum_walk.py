@@ -74,18 +74,41 @@ H = xi @ xj + yi @ yj
 
 print(H)
 
-circuit.append(H, [0,1,2,3,4,5,6,7])
+#circuit.append(H, [0,1,2,3,4,5,6,7])
 
-circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
+#circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
 
 #circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
 
 
-job = simulator.run(circuit, shots=1024)
-result = job.result()
-counts = result.get_counts(circuit)
-print("resultados:", counts)
+step_type = input("Diga qual grupo de pares voce quer (w0 ou w1): ")
 
-fig = circuit.draw(output="mpl")
+# create the step dynamics 
+# it divides the 8 qubits into 2 groups of pairs that are permit to exchange energy 
+# we select which one is 
+if step_type == "w0":
 
-plt.show()
+    pairs = [(1,2), (3,4), (5,6), (7,8)]
+    print(pairs)
+
+elif step_type == "w1":
+    pairs = [(2,3), (4,5), (6,7)]
+    print(pairs)
+else:
+    # erro("You must select W0 or W1")
+    # colocar algum tratamento de erro
+    print("teste")
+
+# return complete hamiltonian
+# H_total = 
+
+
+
+# job = simulator.run(circuit, shots=1024)
+# result = job.result()
+# counts = result.get_counts(circuit)
+# print("resultados:", counts)
+
+# fig = circuit.draw(output="mpl")
+
+# plt.show()
