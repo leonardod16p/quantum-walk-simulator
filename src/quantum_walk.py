@@ -1,9 +1,11 @@
+from qiskit import transpile
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator 
 import matplotlib.pyplot as plt
 
 from qiskit.quantum_info import Operator
 from qiskit.circuit.library import XGate, YGate
+from qiskit.circuit.library import HamiltonianGate
 
 import numpy as np
 from math import pi 
@@ -14,6 +16,8 @@ number_of_qubits = 8
 
 
 J = 2*pi * 1.0e6
+time_evolution = pi / (4*J)
+
 
 simulator = AerSimulator()  
 
@@ -70,15 +74,19 @@ yj = identidade_global.compose(porta_y, qargs=[j])
 #op_yi = Operator(yi)
 #op_yj = Operator(yj)
 
-H = xi @ xj + yi @ yj
+H = J * (xi @ xj + yi @ yj)
 
 print(H)
 
-#circuit.append(H, [0,1,2,3,4,5,6,7])
+#transformando hamiltoniana num operador unitario
+gate_evolution = HamiltonianGate(H.data, time=time_evolution)
 
-#circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
 
-#circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
+circuit.append(gate_evolution, [0,1,2,3,4,5,6,7])
+
+circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
+
+circuit.measure([0,1,2,3,4,5,6,7], [0,1,2,3,4,5,6,7])
 
 
 step_type = input("Diga qual grupo de pares voce quer (w0 ou w1): ")
@@ -113,13 +121,15 @@ else:
 # converto a probabilidade em i para probs[i] = (1 - o valor esperado calculado no passo anterior) / 2
 
 
+#we are going to transpile the circuit to the matrix language that the simulator understands
+translated_circuit = transpile(circuit, simulator)
 
 
-# job = simulator.run(circuit, shots=1024)
-# result = job.result()
-# counts = result.get_counts(circuit)
-# print("resultados:", counts)
+job = simulator.run(translated_circuit, shots=1024)
+result = job.result()
+counts = result.get_counts(circuit)
+print("resultados:", counts)
 
-# fig = circuit.draw(output="mpl")
+fig = circuit.draw(output="mpl")
 
-# plt.show()
+plt.show()
