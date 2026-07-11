@@ -103,6 +103,17 @@ else:
 # H_total = 
 
 
+# criar vetor de probabilidades de tamanho number_of_qubits
+#probs = 
+
+# iterar sobre cada qubits e medir a probabilidade associada ao auto estado do operador Z
+# para cada i no vetor estado (cada qubit do produto estado)
+# atuo com o operador z no indice i
+# calculo o valor esperado do vetor atuado com esse operador
+# converto a probabilidade em i para probs[i] = (1 - o valor esperado calculado no passo anterior) / 2
+
+
+
 
 # job = simulator.run(circuit, shots=1024)
 # result = job.result()
